@@ -1,9 +1,7 @@
-cd ~/node-app
-cat <<EOF > Jenkinsfile
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = "sakshi2105/node-app"  // Tera DockerHub username
+        IMAGE_NAME = "sakshi2105/node-app"  // DockerHub username: sakshi2105
     }
     stages {
         stage('Checkout') {
@@ -16,14 +14,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("\${IMAGE_NAME}:\${env.BUILD_ID}")
+                    docker.build("${IMAGE_NAME}:${env.BUILD_ID}")
                 }
             }
         }
         stage('Test') {
             steps {
                 script {
-                    docker.image("\${IMAGE_NAME}:\${env.BUILD_ID}").inside {
+                    docker.image("${IMAGE_NAME}:${env.BUILD_ID}").inside {
                         sh 'node --version'
                     }
                 }
@@ -33,8 +31,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
-                        docker.image("\${IMAGE_NAME}:\${env.BUILD_ID}").push()
-                        docker.image("\${IMAGE_NAME}:\${env.BUILD_ID}").push('latest')
+                        docker.image("${IMAGE_NAME}:${env.BUILD_ID}").push()
+                        docker.image("${IMAGE_NAME}:${env.BUILD_ID}").push('latest')
                     }
                 }
             }
@@ -43,7 +41,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker stop node-app || true && docker rm node-app || true'
-                    sh "docker run -d --name node-app -p 3000:3000 \${IMAGE_NAME}:latest"
+                    sh "docker run -d --name node-app -p 3000:3000 ${IMAGE_NAME}:latest"
                 }
             }
         }
@@ -54,4 +52,3 @@ pipeline {
         }
     }
 }
-
